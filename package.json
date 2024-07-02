@@ -1,5 +1,14 @@
 {
+  "name": "cleanup-removed-containers-service",
+  "version": "0.1.0",
+  "description": "semantic.works service to clean up removed containers created by docker-monitor-service",
   "dependencies": {
     "cron": "^3.1.7"
-  }
+  },
+  "author": "redpencil.io",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/redpencilio/cleanup-removed-containers-service/issues"
+  },
+  "homepage": "https://github.com/redpencilio/cleanup-removed-containers-service#readme"
 }
