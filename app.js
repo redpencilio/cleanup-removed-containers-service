@@ -14,36 +14,38 @@ async function startClearing() {
     state.clearing = true;
 
     try {
-      console.info("Checking for containers to be removed");
-      console.info(`Found ${(await query(`PREFIX docker: <https://w3.org/ns/bde/docker#>
-                                          SELECT (COUNT (DISTINCT ?uri) AS ?amount) {
-                                            ?uri a docker:Container;
-                                            docker:state/docker:status "removed".
-                                          }`)).results.bindings[0].amount.value} containers to remove`);
-      while ((await query(`PREFIX docker: <https://w3.org/ns/bde/docker#>
-                         ASK {
-                           ?uri a docker:Container;
-                           docker:state/docker:status "removed".
-                         }`)).boolean) {
-        console.info("Removing up to 100 containers");
-        await update(`PREFIX docker: <https://w3.org/ns/bde/docker#>
-                      PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
-                     DELETE {
-                       ?uri ?p ?o .
-                     } WHERE {
-                       {
-                         SELECT ?uri WHERE {
-                           ?uri
+      const whereClause = `?uri
                              a docker:Container;
                              docker:state ?state.
                            ?state
-                             docker:status "removed";
-                             ext:updatedAt ?updatedAt.                            
-                           FILTER( ?updatedAt < ${sparqlEscapeDateTime(new Date(Date.now() - 5 * 1000 * 60)) /* 5 minutes ago*/} )
-                         } LIMIT 100
-                       }
-                       ?uri ?p ?o .
-                     }`);
+                              docker:status "removed";
+                              ext:updatedAt ?updatedAt.
+                           FILTER( ?updatedAt < ${sparqlEscapeDateTime(new Date(Date.now() - 5 * 1000 * 60)) /* 5 minutes ago*/} )`;
+
+      console.info("Checking for containers to be removed");
+      console.info(`Found ${(await query(`PREFIX docker: <https://w3.org/ns/bde/docker#>
+                                          PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+                                          SELECT (COUNT (DISTINCT ?uri) AS ?amount) {
+                                            ${whereClause}
+                                          }`)).results.bindings[0].amount.value} containers to remove`);
+      while ((await query(`PREFIX docker: <https://w3.org/ns/bde/docker#>
+                           PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+                           ASK {
+                             ${whereClause}
+                           }`)).boolean) {
+        console.info("Removing up to 100 containers");
+        await update(`PREFIX docker: <https://w3.org/ns/bde/docker#>
+                      PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+                      DELETE {
+                        ?uri ?p ?o .
+                      } WHERE {
+                        {
+                          SELECT ?uri WHERE {
+                            ${whereClause}
+                          } LIMIT 100
+                        }
+                        ?uri ?p ?o .
+                      }`);
         console.info("done");
         await timeout(1000); // grace period for the triplestore
       }
