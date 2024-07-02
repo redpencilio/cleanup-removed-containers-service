@@ -88,7 +88,7 @@ const AUTO_DELETE_CONTAINERS = process.env.AUTO_DELETE_CONTAINERS;
 
 if( (AUTO_DELETE_CRON_PATTERN && AUTO_DELETE_CRON_PATTERN != "")
     || (AUTO_DELETE_CONTAINERS && AUTO_DELETE_CONTAINERS != "") ) {
-  const cronPattern = AUTO_DELETE_CRON_PATTERN || '0 */1 * * *';
+  const cronPattern = AUTO_DELETE_CRON_PATTERN || '*/10 * * * *';
 
   console.info(`Starting with cron pattern ${cronPattern}`);
 

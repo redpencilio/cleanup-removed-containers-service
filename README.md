@@ -25,7 +25,7 @@ Set `AUTO_DELETE_CRON_PATTERN` to a cron pattern to specify when cleanup should 
   cleanup-removed-containers:
     # image: ...
     environment:
-      AUTO_DELETE_CRON_PATTERN="0 */1 * * *"
+      AUTO_DELETE_CRON_PATTERN="*/10 * * * *"
 ```
 
 ### Trigger service externally
